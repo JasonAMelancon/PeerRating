@@ -18,13 +18,16 @@ def arrayify_sites()
   siteArray
 end
 
-class Rater
+class Voter
   @@numSites = Dir.chdir($sitesDir) { Dir.glob("*").select{ |x| Dir.exist? x }.size }
 
   def initialize()
     @randomSite = (0..@@numSites-1).to_a.shuffle
     @randomSiteIndex = 0
     @siteSeen = Array.new(@@numSites, false) # vote only if @siteSeen.all?
+    # once these three strings are non-empty, the user can vote and commit
+    # these strings to the database. A user can only vote if these database
+    # fields are not nil.
     @choice1 = ""
     @choice2 = ""
     @choice3 = ""
@@ -39,14 +42,39 @@ class Rater
     @randomSiteIndex = ( @randomSiteIndex - 1 ) % @@numSites
     @randomSite[ @randomSiteIndex ]
   end
-  def saw(i)
-    @siteSeen[ i ] = true
+  def saw()
+    @siteSeen[ @randomSiteIndex ] = true
   end
 end
 
-# returns a hash of all raters
-def hashify_raters()
-  raters = Hash.new
-  User.all(:fields => :username).each {|username| raters[ username ] = Rater.new }
-  raters
+# returns a hash of all voters
+def hashify_voters()
+  voters = Hash.new
+  User.all(:fields => [:username]).each {|username| voters[ username ] = Voter.new }
+  voters
 end
+
+# puts user's choices in the database; returns true on success
+def vote( voters_hash, username )
+  user_record = User.get( :username => username )
+  if user_record = nil do
+    puts "Error [tracking.rb vote()]: user does not exist"
+    return false
+  end
+  # check database to be sure the fields are blank
+  check = user_record[ :choice1 ]
+  return false if check != nil and check != ""
+  # check to be sure user has seen all sites
+  return false if not voters_hash[ username ].siteSeen.all?
+  # go ahead and put the values in the database
+  user_record[ :choice1 ] = voters_hash[ username ].choice1
+  user_record[ :choice2 ] = voters_hash[ username ].choice2
+  user_record[ :choice3 ] = voters_hash[ username ].choice3
+  user_record.save
+end
+
+
+
+
+
+

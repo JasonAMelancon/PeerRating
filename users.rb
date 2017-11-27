@@ -9,6 +9,9 @@ class User
   property :username, String
   property :password, String
   property :role, String
+  property :choice1, String
+  property :choice2, String
+  property :choice3, String
 end
 
 DataMapper.finalize()
