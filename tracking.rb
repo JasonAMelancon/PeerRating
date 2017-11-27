@@ -66,6 +66,12 @@ def vote( voters_hash, username )
   return false if check != nil and check != ""
   # check to be sure user has seen all sites
   return false if not voters_hash[ username ].siteSeen.all?
+  # check to be sure user has selected all 3 favorites
+  choice_not_made =
+    voters_hash[ username ].choice1.strip == "" or
+    voters_hash[ username ].choice2.strip == "" or
+    voters_hash[ username ].choice3.strip == ""
+  return false if choice_not_made
   # go ahead and put the values in the database
   user_record[ :choice1 ] = voters_hash[ username ].choice1
   user_record[ :choice2 ] = voters_hash[ username ].choice2
