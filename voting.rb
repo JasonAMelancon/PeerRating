@@ -52,3 +52,15 @@ end
 get '/logintest' do
   'welcome to the login test zone'
 end
+
+get "/admin" do
+  erb :uploader
+end
+
+post '/save_file' do
+  filename = params[:file][:filename]
+  file = params[:file][:tempfile]
+  File.open("./Files/#{filename}", 'wb') do |f|
+    f.write(file.read)
+  end
+end
