@@ -4,6 +4,7 @@ require 'slim'
 require './users'
 require './tracking'
 require 'bcrypt'
+require 'zip'
 
 configure do
   enable :sessions
@@ -53,8 +54,23 @@ get '/logintest' do
   'welcome to the login test zone'
 end
 
+#https://stackoverflow.com/questions/19754883/how-to-unzip-a-zip-file-containing-folders-and-files-in-rails-while-keeping-the
+def extract_zip(file, destination)
+  FileUtils.mkdir_p(destination)
+
+  Zip::File.open(file) do |zip_file|
+    zip_file.each do |f|
+      fpath = File.join(destination, f.name)
+      zip_file.extract(f, fpath) unless File.exist?(fpath)
+    end
+  end
+end
+#https://stackoverflow.com/questions/19754883/how-to-unzip-a-zip-file-containing-folders-and-files-in-rails-while-keeping-the
+
+#https://gist.github.com/runemadsen/3905593#file-form-erb-L10
 get "/admin" do
   erb :uploader
+  #"If zip file, run 'extract_zip(file_path, destination)' with paths for variables"
 end
 
 post '/save_file' do
@@ -64,3 +80,4 @@ post '/save_file' do
     f.write(file.read)
   end
 end
+#https://gist.github.com/runemadsen/3905593#file-form-erb-L10
