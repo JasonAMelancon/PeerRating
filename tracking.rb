@@ -2,7 +2,7 @@ require './users'
 
 $sitesDir = "sites"
 
-$sitesDir = "." if $sitesDir = ""
+$sitesDir = "." if $sitesDir == ""
 
 # search through sub-directories of given directory full of student sites
 # return an array of directory names
