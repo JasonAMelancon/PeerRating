@@ -16,4 +16,4 @@ end
 
 DataMapper.finalize()
 
-#User.create(username: "test", password: "test", role: "tester")
+#User.create(username: "test", password: "test", role: "tester", choice1: "test1",  choice2: "test2",  choice3: "test3")

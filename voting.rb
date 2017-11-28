@@ -4,6 +4,7 @@ require 'slim'
 require './users'
 require './tracking'
 require 'bcrypt'
+require 'zip'
 
 configure do
   enable :sessions
@@ -37,7 +38,7 @@ post '/login' do
    #order matters since settings.password is a BCrypt::Password
   if settings.username == params[:username] && settings.password == params[:password]
     session[:admin] = true
-    #User.create(username: "test", password: "test", role: "tester")
+#User.create(username: "test", password: "test", role: "tester", choice1: "test1",  choice2: "test2",  choice3: "test3")
     redirect to('/logintest')
   else
     slim :login
@@ -53,78 +54,30 @@ get '/logintest' do
   'welcome to the login test zone'
 end
 
+#https://stackoverflow.com/questions/19754883/how-to-unzip-a-zip-file-containing-folders-and-files-in-rails-while-keeping-the
+def extract_zip(file, destination)
+  FileUtils.mkdir_p(destination)
 
-__END__
-@@homepage
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Web Site Voting</title>
+  Zip::File.open(file) do |zip_file|
+    zip_file.each do |f|
+      fpath = File.join(destination, f.name)
+      zip_file.extract(f, fpath) unless File.exist?(fpath)
+    end
+  end
+end
+#https://stackoverflow.com/questions/19754883/how-to-unzip-a-zip-file-containing-folders-and-files-in-rails-while-keeping-the
 
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <!-- jQuery library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <!-- Latest compiled JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+#https://gist.github.com/runemadsen/3905593#file-form-erb-L10
+get "/admin" do
+  erb :uploader
+  #"If zip file, run 'extract_zip(file_path, destination)' with paths for variables"
+end
 
-    <style>
-        body{
-            background-color: black;
-            color: white;
-        }
-        .jumbotron{
-            text-align: center;
-            margin-bottom: 0px;
-            background-position: 50% 95%;
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-color: lightblue;
-            font-family: "Impact", Charcoal, sans-serif;
-        }
-        #subtext, #jumboheader{
-            color: black;
-            background-color: lightblue;
-            text-align: center;
-        }
-        .title{
-            text-align: center;
-            font-family: "Impact", Charcoal, sans-serif;
-        }
-    </style>
-</head>
-<body>
-
-<!--Jumbotron code-->
-<div class="jumbotron">
-    <h1 id="jumboheader">Vote for your favorite web site</h1>
-    <p id="subtext">created by your classmates</p>
-</div>
-
-<nav class="navbar navbar-inverse">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-          <a class="navbar-brand" href="/">Menu</a>
-        </div>
-        <ul class="nav navbar-nav">
-            <li><a href="/test">Test</a></li>
-            <li><a href="/login">Login</a></li>
-        </ul>
-    </div>
-</nav>
-
-  <nav>
-    <ul>
-      <li><a href="/login">Login</a></li>
-
-    </ul>
-  </nav>
-
-</body>
-</html>
+post '/save_file' do
+  filename = params[:file][:filename]
+  file = params[:file][:tempfile]
+  File.open("./Files/#{filename}", 'wb') do |f|
+    f.write(file.read)
+  end
+end
+#https://gist.github.com/runemadsen/3905593#file-form-erb-L10
