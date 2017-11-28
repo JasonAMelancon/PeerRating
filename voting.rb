@@ -20,14 +20,7 @@ get '/' do
 end
 
 get '/test' do
-  output =<<EOS
-<h1>Test link successful</h1>
-  <p>Click 'Home' to go to the home page</p>
-  <ul>
-    <li><a href="/">Home</a></li>
-  </ul>
-EOS
-  output
+  erb :testlink
 end
 
 get '/login' do
@@ -51,7 +44,7 @@ get '/logout' do
 end
 
 get '/logintest' do
-  'welcome to the login test zone'
+  erb :logintest
 end
 
 #https://stackoverflow.com/questions/19754883/how-to-unzip-a-zip-file-containing-folders-and-files-in-rails-while-keeping-the
