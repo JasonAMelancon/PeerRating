@@ -7,7 +7,6 @@ $sitesDir = "." if $sitesDir == ""
 # search through sub-directories of given directory full of student sites
 # return an array of directory names
 def arrayify_sites()
-  if not Dir.exist? $sitesDir do
     puts "Error: sites directory name (in tracking.rb) does not exist"
     return
   end
@@ -33,12 +32,14 @@ class Voter
     @choice3 = ""
   end
   # these return an index into sites array
-  def siteThis() { @randomSite[ @randomSiteIndex ] }
-  def siteNext() do
+  def siteThis() 
+    @randomSite[ @randomSiteIndex ]
+  end
+  def siteNext()
     @randomSiteIndex = ( @randomSiteIndex + 1 ) % @@numSites
     @randomSite[ @randomSiteIndex ]
   end
-  def sitePrev() do
+  def sitePrev()
     @randomSiteIndex = ( @randomSiteIndex - 1 ) % @@numSites
     @randomSite[ @randomSiteIndex ]
   end
@@ -57,7 +58,7 @@ end
 # puts user's choices in the database; returns true on success
 def vote( voters_hash, username )
   user_record = User.get( :username => username )
-  if user_record = nil do
+  if user_record == nil
     puts "Error [tracking.rb vote()]: user does not exist"
     return false
   end
