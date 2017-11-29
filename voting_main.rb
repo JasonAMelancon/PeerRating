@@ -47,7 +47,9 @@ get '/logintest' do
   erb :logintest
 end
 
+#The following block of 12 lines is sourced from stackoverflow at:
 #https://stackoverflow.com/questions/19754883/how-to-unzip-a-zip-file-containing-folders-and-files-in-rails-while-keeping-the
+#Extraction function to pull files from uploaded zip folder
 def extract_zip(file, destination)
   FileUtils.mkdir_p(destination)
 
@@ -58,8 +60,8 @@ def extract_zip(file, destination)
     end
   end
 end
-#https://stackoverflow.com/questions/19754883/how-to-unzip-a-zip-file-containing-folders-and-files-in-rails-while-keeping-the
 
+#The following blocks of code are sourced and reappropriated from:
 #https://gist.github.com/runemadsen/3905593#file-form-erb-L10
 get "/admin" do
   erb :uploader
@@ -72,6 +74,13 @@ post '/Files' do
     file = params[:file][:tempfile]
     File.open("./Files/#{filename}", 'wb') do |f|
       f.write(file.read)
-    end
+  end
+  if params[:zip]
+    extract_zip(/Files, /Files/Unzipped)
 end
-#https://gist.github.com/runemadsen/3905593#file-form-erb-L10
+
+#post '/Files/Unzipped' do
+#  if params[:zip]
+#    extract_zip(/Files, /Files/Unzipped)
+#  end
+#end
