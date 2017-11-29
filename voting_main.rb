@@ -68,7 +68,7 @@ get "/admin" do
   #"If zip file, run 'extract_zip(file_path, destination)' with paths for variables"
 end
 
-post '/Files' do
+post '/admin' do
   if params[:csv]
     filename = params[:file][:filename]
     file = params[:file][:tempfile]
