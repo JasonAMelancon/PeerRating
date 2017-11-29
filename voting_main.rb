@@ -72,15 +72,13 @@ post '/admin' do
   if params[:csv]
     filename = params[:file][:filename]
     file = params[:file][:tempfile]
-    File.open("./Files/#{filename}", 'wb') do |f|
+    File.open("./#{filename}", 'wb') do |f|
       f.write(file.read)
   end
   if params[:zip]
-    extract_zip(/Files, /Files/Unzipped)
+    filename = params[:file][:filename]
+    file = params[:file][:tempfile]
+    File.open("./#{filename}", 'wb') do |f|
+      f.write(file.read)
+    extract_zip("./#{filename}", "./")
 end
-
-#post '/Files/Unzipped' do
-#  if params[:zip]
-#    extract_zip(/Files, /Files/Unzipped)
-#  end
-#end
