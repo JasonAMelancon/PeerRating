@@ -94,7 +94,7 @@ post '/admin' do
   end
 end
 
-    #From the sinatra readme
+#From the sinatra readme
 #Download csv of voter results
 get '/download' do 
     send_file 'voting_report.csv'
