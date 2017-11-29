@@ -33,7 +33,7 @@ class Voter
     @choice3 = ""
   end
   # these return an index into sites array
-  def siteThis() 
+  def siteThis()
     @randomSite[ @randomSiteIndex ]
   end
   def siteNext()
@@ -83,20 +83,20 @@ end
 
 def makeWinnersHash( siteArray )
   winnersHash = new Hash
-  siteArray.each do |i|
-    winners[ siteArray[i] ] = 0 
+  siteArray.each do |name|
+    winnersHash[ name ] = 0 
   end
   ratersInDb = User.all( :role => "student" )
   ratersInDb.each do |rater|
     site1 = rater.choice1.strip
     site2 = rater.choice2.strip
     site3 = rater.choice3.strip
-    site1oldScore = winners[ site1 ]
-    site2oldScore = winners[ site2 ]
-    site3oldScore = winners[ site3 ]
-    winners[ site1 ] = oldScore + 5
-    winners[ site2 ] = oldScore + 3
-    winners[ site3 ] = oldScore + 1
+    site1oldScore = winnersHash[ site1 ]
+    site2oldScore = winnersHash[ site2 ]
+    site3oldScore = winnersHash[ site3 ]
+    winnersHash[ site1 ] = site1oldScore + 5
+    winnersHash[ site2 ] = site2oldScore + 3
+    winnersHash[ site3 ] = site3oldScore + 1
   end
   winnersHash
 end
@@ -106,6 +106,7 @@ def makeWinnersCsv( winnersHash, voteFilename )
   winnersHash.each_key do |key|
     f.write( "#{key}, #{winners[ key ]}\n" )
   end
+  f.close
 end
 
 
