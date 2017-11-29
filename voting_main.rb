@@ -83,6 +83,7 @@ post '/admin' do
     file = params[:file][:tempfile]
     File.open("./#{filename}", 'wb') do |f|
       f.write(file.read)
+    end
   end
   #For .zip, upload and then use extract_zip function to unpack contents into project root directory
   if params[:zip]
@@ -90,6 +91,7 @@ post '/admin' do
     file = params[:file][:tempfile]
     File.open("./#{filename}", 'wb') do |f|
       f.write(file.read)
+    end
     extract_zip("./#{filename}", "./")
   end
 end
@@ -99,3 +101,4 @@ end
 get '/download' do 
     send_file 'voting_report.csv'
 end
+

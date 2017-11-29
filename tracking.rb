@@ -7,6 +7,7 @@ $sitesDir = "." if $sitesDir == ""
 # search through sub-directories of given directory full of student sites
 # return an array of directory names
 def arrayify_sites()
+  if not Dir.exist? $sitesDir
     puts "Error: sites directory name (in tracking.rb) does not exist"
     return
   end
@@ -80,8 +81,32 @@ def vote( voters_hash, username )
   user_record.save
 end
 
+def makeWinnersHash( siteArray )
+  winnersHash = new Hash
+  siteArray.each do |i|
+    winners[ siteArray[i] ] = 0 
+  end
+  ratersInDb = User.all( :role => "student" )
+  ratersInDb.each do |rater|
+    site1 = rater.choice1.strip
+    site2 = rater.choice2.strip
+    site3 = rater.choice3.strip
+    site1oldScore = winners[ site1 ]
+    site2oldScore = winners[ site2 ]
+    site3oldScore = winners[ site3 ]
+    winners[ site1 ] = oldScore + 5
+    winners[ site2 ] = oldScore + 3
+    winners[ site3 ] = oldScore + 1
+  end
+  winnersHash
+end
 
-
+def makeWinnersCsv( winnersHash, voteFilename )
+  f = File.new( voteFilename, "w+" )
+  winnersHash.each_key do |key|
+    f.write( "#{key}, #{winners[ key ]}\n" )
+  end
+end
 
 
 
