@@ -66,11 +66,22 @@ get "/admin" do
   #"If zip file, run 'extract_zip(file_path, destination)' with paths for variables"
 end
 
-post '/save_file' do
-  filename = params[:file][:filename]
-  file = params[:file][:tempfile]
-  File.open("./Files/#{filename}", 'wb') do |f|
-    f.write(file.read)
-  end
+post '/Files' do
+  if params[:csv]
+    filename = params[:file][:filename]
+    file = params[:file][:tempfile]
+    File.open("./Files/#{filename}", 'wb') do |f|
+      f.write(file.read)
+    end
 end
+
+post '/Unzipped' do
+  if params[:zip]
+    filename = params[:file][:filename]
+    file = params[:file][:tempfile]
+    File.open("./Files/#{filename}", 'wb') do |f|
+      f.write(file.read)
+    end
+end
+
 #https://gist.github.com/runemadsen/3905593#file-form-erb-L10
