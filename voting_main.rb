@@ -61,19 +61,22 @@ def extract_zip(file, destination)
   end
 end
 
-#The following blocks of code are sourced and reappropriated from:
+#The following 23 lines of code are reappropriated from:
 #https://gist.github.com/runemadsen/3905593#file-form-erb-L10
+#Load webpage with buttons for uploading .csv and .zip files
 get "/admin" do
   erb :uploader
 end
 
 post '/admin' do
+  #For .csv, upload as-is to project root directory
   if params[:csv]
     filename = params[:file][:filename]
     file = params[:file][:tempfile]
     File.open("./#{filename}", 'wb') do |f|
       f.write(file.read)
   end
+  #For .zip, upload and then use extract_zip function to unpack contents into project root directory
   if params[:zip]
     filename = params[:file][:filename]
     file = params[:file][:tempfile]
@@ -83,7 +86,8 @@ post '/admin' do
   end
 end
 
+    #From the sinatra readme
 #Download csv of voter results
 get '/download' do 
-    send_file '[nameOfFile]', :filename => :votes.csv
+    send_file 'voting_report.csv'
 end
