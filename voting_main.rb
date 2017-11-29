@@ -80,4 +80,10 @@ post '/admin' do
     File.open("./#{filename}", 'wb') do |f|
       f.write(file.read)
     extract_zip("./#{filename}", "./")
+  end
+end
+
+#Download csv of voter results
+get '/download' do 
+    send_file '[nameOfFile]', :filename => :votes.csv
 end
