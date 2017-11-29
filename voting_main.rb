@@ -44,7 +44,15 @@ get '/logout' do
 end
 
 get '/logintest' do
-  erb :logintest
+  if session[:admin]
+    erb :logintest
+  else
+    redirect to('/notallowed')
+  end
+end
+
+get '/notallowed' do
+  erb :notallowed
 end
 
 #The following block of 12 lines is sourced from stackoverflow at:
