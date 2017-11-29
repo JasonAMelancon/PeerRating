@@ -65,7 +65,6 @@ end
 #https://gist.github.com/runemadsen/3905593#file-form-erb-L10
 get "/admin" do
   erb :uploader
-  #"If zip file, run 'extract_zip(file_path, destination)' with paths for variables"
 end
 
 post '/admin' do
