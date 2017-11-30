@@ -81,9 +81,11 @@ post '/admin' do
   if params[:csv]
     filename = params[:file][:filename]
     file = params[:file][:tempfile]
-    File.open("./#{filename}", 'wb') do |f|
+    File.open("./#{filename}", 'wb') do |f| 
       f.write(file.read)
     end
+    # TODO: put csv info into db
+    $voters = hashify_voters()
   end
   #For .zip, upload and then use extract_zip function to unpack contents into project root directory
   if params[:zip]
@@ -96,9 +98,49 @@ post '/admin' do
   end
 end
 
+@sites = arrayify_sites()
+$voter = $voters[ settings.username ]
+
+get "/vote" do
+  if $voter.voted
+    redirect to('/thanks')
+  end
+  @site_url = @sites[ $voter.siteThis ]
+  @disable_picks = (not $voter.siteSeen.all?).to_s
+  @num_sites = $voters.numSites
+  $voter.saw
+  erb :vote
+end
+
+post "/prev" do
+  $voter.sitePrev
+  redirect to('/vote')
+end
+
+post "/next" do
+  $voter.siteNext
+  redirect to('/vote')
+end
+
+post "/vote" do
+  $voter.choice1 = params[:first]
+  $voter.choice2 = params[:second]
+  $voter.choice3 = params[:third]
+  if vote( $voters, settings.username )
+    redirect to('/thanks')
+  else
+    puts "Error: voting not successful"
+  end
+end
+
+get "/thanks"
+  "Thanks for voting!"
+end
+
 #From the sinatra readme
 #Download csv of voter results
 get '/download' do 
-    send_file 'voting_report.csv'
+  
+  send_file 'voting_report.csv'
 end
 

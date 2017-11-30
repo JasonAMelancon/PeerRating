@@ -31,6 +31,7 @@ class Voter
     @choice1 = ""
     @choice2 = ""
     @choice3 = ""
+    @voted = false
   end
   # these return an index into sites array
   def siteThis()
@@ -75,6 +76,7 @@ def vote( voters_hash, username )
     voters_hash[ username ].choice3.strip == ""
   return false if choice_not_made
   # go ahead and put the values in the database
+  voters_hash[ username ].voted = true
   user_record[ :choice1 ] = voters_hash[ username ].choice1
   user_record[ :choice2 ] = voters_hash[ username ].choice2
   user_record[ :choice3 ] = voters_hash[ username ].choice3
