@@ -122,9 +122,9 @@ post "/next" do
 end
 
 post "/vote" do
-  $voter.choice1 = params[:first]
-  $voter.choice2 = params[:second]
-  $voter.choice3 = params[:third]
+  $voter.choice1 = @sites[ $voter.randomSite[ params[:first] - 1 ]]
+  $voter.choice2 = @sites[ $voter.randomSite[ params[:second] - 1 ]]
+  $voter.choice3 = @sites[ $voter.randomSite[ params[:third] - 1 ]]
   if vote( $voters, settings.username )
     redirect to('/thanks')
   else
