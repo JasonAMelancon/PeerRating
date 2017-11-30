@@ -45,9 +45,10 @@ end
 
 get '/logintest' do
   if session[:admin]
-    erb :logintest
+    redirect to('/admin')
   else
-    redirect to('/notallowed')
+    $voter = $voters[ settings.username ]
+    redirect to('/vote')
   end
 end
 
@@ -95,11 +96,9 @@ post '/admin' do
       f.write(file.read)
     end
     extract_zip("./#{filename}", "./")
+    @sites = arrayify_sites()
   end
 end
-
-@sites = arrayify_sites()
-$voter = $voters[ settings.username ]
 
 get "/vote" do
   if $voter.voted
@@ -133,7 +132,7 @@ post "/vote" do
   end
 end
 
-get "/thanks"
+get "/thanks" do
   "Thanks for voting!"
 end
 
