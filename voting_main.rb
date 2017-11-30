@@ -29,13 +29,13 @@ end
 
 post '/login' do
    #order matters since settings.password is a BCrypt::Password
-  if settings.username == params[:username] && settings.password == params[:password]
+  result = User.all(:username => params[:username], :password => params[:password])
+  unless result.empty?
     session[:admin] = true
-#User.create(username: "test", password: "test", role: "tester", choice1: "test1",  choice2: "test2",  choice3: "test3")
     redirect to('/logintest')
-  else
-    slim :login
   end
+  #User.create(username: "test", password: "test", role: "tester", choice1: "test1",  choice2: "test2",  choice3: "test3")
+  slim :login
 end
 
 get '/logout' do
