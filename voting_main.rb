@@ -107,6 +107,7 @@ get "/vote" do
   @site_url = @sites[ $voter.siteThis ]
   @disable_picks = (not $voter.siteSeen.all?).to_s
   @num_sites = $voters.numSites
+  @siteNum = $voter.randomSiteIndex
   $voter.saw
   erb :vote
 end
