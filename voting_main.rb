@@ -29,8 +29,8 @@ end
 
 post '/login' do
    #order matters since settings.password is a BCrypt::Password
-  result = User.all(:username => params[:username], :password => params[:password])
-  unless result.empty?
+  result = User.first(:username => params[:username], :password => params[:password])
+  unless result == nil
     session[:admin] = true
     redirect to('/logintest')
   end
