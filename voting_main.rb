@@ -2,7 +2,7 @@ require 'sinatra'
 require 'sinatra/reloader' if development? # gem install sinatra-contrib
 require 'slim'
 require './users'
-require './tracking'
+#require './tracking'
 require 'bcrypt'
 require 'zip'
 require 'csv'
