@@ -75,6 +75,10 @@ get "/admin" do
   end
 end
 
+get '/csvupload' do
+  erb :csvup
+end
+
 post '/csvupload' do
   #For .csv, upload as-is to project root directory
   File.open(params['csv'][:filename], 'w') do |f|
