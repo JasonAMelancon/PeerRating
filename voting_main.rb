@@ -79,27 +79,23 @@ get "/admin" do
   end
 end
 
-post '/admin' do
+post '/csvupload' do
   #For .csv, upload as-is to project root directory
-  if params[:csv]
-    filename = params[:file][:filename]
-    file = params[:file][:tempfile]
-    File.open("./#{filename}", 'wb') do |f| 
-      f.write(file.read)
-    end
-    # TODO: put csv info into db
-    $voters = hashify_voters()
-  #For .zip, upload and then use extract_zip function to unpack contents into project root directory
-  elsif params[:zip]
-    filename = params[:file][:filename]
-    file = params[:file][:tempfile]
-    File.open("./#{filename}", 'wb') do |f|
-      f.write(file.read)
-    end
-    extract_zip("./#{filename}", "./")
-    @sites = arrayify_sites()
+  File.open(params['csv'][:filename], 'w') do |f|
+     f.write(params['csv'][:tempfile].read)
   end
-  erb :uploader
+  redirect to('/success')
+end
+
+post '/zipupload' do
+  File.open('Files/' + params['zip'][:filename], 'w') do |f|
+    f.write(params['zip'][:tempfile].read)
+  end
+  redirect to('/success')
+end
+
+get '/success' do
+  erb :success
 end
 
 get "/vote" do
