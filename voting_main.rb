@@ -28,11 +28,17 @@ get '/login' do
 end
 
 post '/login' do
-   #order matters since settings.password is a BCrypt::Password
   result = User.first(:username => params[:username], :password => params[:password])
   unless result == nil
-    session[:admin] = true
-    redirect to('/logintest')
+    result2 = User.first(:username => params[:username], :password => params[:password], :role => "student")
+    result3 = User.first(:username => params[:username], :password => params[:password], :role => "instructor/ta")
+    if result3 != nil
+      session[:admin] = true
+      redirect to('/admin')
+    elsif result2 != nil
+      session[:student] = true
+      redirect to('/vote')
+    end
   end
   #User.create(username: "test", password: "test", role: "tester", choice1: "test1",  choice2: "test2",  choice3: "test3")
   slim :login
@@ -41,15 +47,6 @@ end
 get '/logout' do
   session.clear
   redirect to('/login')
-end
-
-get '/logintest' do
-  if session[:admin]
-    redirect to('/admin')
-  else
-    $voter = $voters[ settings.username ]
-    redirect to('/vote')
-  end
 end
 
 get '/notallowed' do
@@ -74,7 +71,11 @@ end
 #https://gist.github.com/runemadsen/3905593#file-form-erb-L10
 #Load webpage with buttons for uploading .csv and .zip files
 get "/admin" do
-  erb :uploader
+  if session[:admin]
+    erb :uploader
+  else
+    redirect to('/notallowed')
+  end
 end
 
 post '/admin' do
@@ -134,7 +135,7 @@ post "/vote" do
 end
 
 get "/thanks" do
-  "Thanks for voting!"
+  erb :thanks
 end
 
 #From the sinatra readme
