@@ -89,9 +89,8 @@ post '/admin' do
     end
     # TODO: put csv info into db
     $voters = hashify_voters()
-  end
   #For .zip, upload and then use extract_zip function to unpack contents into project root directory
-  if params[:zip]
+  elsif params[:zip]
     filename = params[:file][:filename]
     file = params[:file][:tempfile]
     File.open("./#{filename}", 'wb') do |f|
@@ -100,6 +99,7 @@ post '/admin' do
     extract_zip("./#{filename}", "./")
     @sites = arrayify_sites()
   end
+  erb :uploader
 end
 
 get "/vote" do
