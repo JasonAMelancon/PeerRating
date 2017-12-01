@@ -21,7 +21,7 @@ get '/' do
 end
 
 get '/login' do
-  slim :login
+  erb :login
 end
 
 post '/login' do
