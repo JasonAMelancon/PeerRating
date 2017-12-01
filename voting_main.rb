@@ -81,10 +81,14 @@ end
 
 post '/csvupload' do
   #For .csv, upload as-is to project root directory
-  File.open(params['csv'][:filename], 'w') do |f|
-     f.write(params['csv'][:tempfile].read)
+  nameoffile = params['csv'][:filename]
+  if nameoffile.end_with? '.csv'
+    File.open(params['csv'][:filename], 'w') do |f|
+      f.write(params['csv'][:tempfile].read)
+    end
+    redirect to('/success')
   end
-  redirect to('/success')
+  redirect to('/false')
 end
 
 post '/zipupload' do
@@ -96,6 +100,10 @@ end
 
 get '/success' do
   erb :success
+end
+
+get '/false' do
+  erb :false
 end
 
 get "/vote" do
