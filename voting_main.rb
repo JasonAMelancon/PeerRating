@@ -20,10 +20,6 @@ get '/' do
   erb :homepage
 end
 
-get '/test' do
-  erb :testlink
-end
-
 get '/login' do
   slim :login
 end
@@ -88,7 +84,7 @@ post '/csvupload' do
 end
 
 post '/zipupload' do
-  File.open('Files/' + params['zip'][:filename], 'w') do |f|
+  File.open(params['zip'][:filename], 'w') do |f|
     f.write(params['zip'][:tempfile].read)
   end
   redirect to('/success')
