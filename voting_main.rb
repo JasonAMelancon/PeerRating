@@ -92,10 +92,14 @@ post '/csvupload' do
 end
 
 post '/zipupload' do
-  File.open(params['zip'][:filename], 'w') do |f|
-    f.write(params['zip'][:tempfile].read)
+  nameoffile = params['zip'][:filename]
+  if nameoffile.end_with? '.zip'
+    File.open(params['zip'][:filename], 'w') do |f|
+      f.write(params['zip'][:tempfile].read)
+    end
+    redirect to('/success')
   end
-  redirect to('/success')
+  redirect to('/false')
 end
 
 get '/success' do
