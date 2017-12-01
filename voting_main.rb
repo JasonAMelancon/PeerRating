@@ -5,6 +5,7 @@ require './users'
 require './tracking'
 require 'bcrypt'
 require 'zip'
+require 'csv'
 
 configure do
   enable :sessions
