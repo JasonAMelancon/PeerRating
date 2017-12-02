@@ -86,6 +86,13 @@ post '/csvupload' do
     File.open(params['csv'][:filename], 'w') do |f|
       f.write(params['csv'][:tempfile].read)
     end
+    #User.create(username: "test", password: "test", role: "tester", choice1: "test1",  choice2: "test2",  choice3: "test3")
+    File.open(nameoffile, "r") do |f|
+      f.each_line do |line|
+        array = line.split(',')
+        User.create(username: array[0], password: array[1], role: array[2], choice1: "",  choice2: "",  choice3: "")
+      end
+    end
     redirect to('/success')
   end
   redirect to('/false')
