@@ -5,8 +5,9 @@ DataMapper.setup(:default, "sqlite3://#{Dir.pwd}/development.db")
 
 class User
   include DataMapper::Resource
-  property :id, Serial #required for a database, wasn't specified in class
-  property :username, String
+  #property :id, Serial #required for a database, wasn't specified in class
+  #property :username, String
+  property :username, String, :key => true
   property :password, String
   property :role, String
   property :choice1, String
@@ -14,6 +15,6 @@ class User
   property :choice3, String
 end
 
-DataMapper.finalize()
+DataMapper.finalize().auto_migrate!
 
 #User.create(username: "test", password: "test", role: "tester", choice1: "test1",  choice2: "test2",  choice3: "test3")

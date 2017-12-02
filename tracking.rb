@@ -1,6 +1,6 @@
 require './users'
 
-$sitesDir = "sites"
+$sitesDir = "public"
 
 $sitesDir = "." if $sitesDir == ""
 
@@ -19,8 +19,16 @@ def arrayify_sites()
 end
 
 class Voter
-  @@numSites = Dir.chdir($sitesDir) { Dir.glob("*").select{ |x| Dir.exist? x }.size }
+  attr_accessor :randomSite, :randomSiteIndex, :siteSeen, :choice1,
+    :choice2, :choice3, :voted
 
+  @@numSites = Dir.chdir($sitesDir) { Dir.glob("*").select{ |x| Dir.exist? x }.size }
+  def self.numSites
+    @@numSites
+  end
+  def numSites
+    @@numSites
+  end
   def initialize()
     @randomSite = (0..@@numSites-1).to_a.shuffle
     @randomSiteIndex = 0
@@ -53,13 +61,18 @@ end
 # returns a hash of all voters
 def hashify_voters()
   voters = Hash.new
-  User.all(:fields => [:username]).each {|username| voters[ username ] = Voter.new }
+  student_records = User.all(:role => "student")
+  #puts student_records
+  student_records.each do |record|
+    #puts record
+    voters[ record.username.strip ] = Voter.new
+  end
   voters
 end
 
 # puts user's choices in the database; returns true on success
 def vote( voters_hash, username )
-  user_record = User.get( :username => username )
+  user_record = User.get( username )
   if user_record == nil
     puts "Error [tracking.rb vote()]: user does not exist"
     return false
@@ -67,30 +80,33 @@ def vote( voters_hash, username )
   # check database to be sure the fields are blank
   check = user_record[ :choice1 ]
   return false if check != nil and check != ""
+  # check to be sure user has not voted already -- done in /vote verb
   # check to be sure user has seen all sites
-  return false if not voters_hash[ username ].siteSeen.all?
+  voterObj = voters_hash[ username ]
+  return false if not voterObj.siteSeen.all?
   # check to be sure user has selected all 3 favorites
   choice_not_made =
-    voters_hash[ username ].choice1.strip == "" or
-    voters_hash[ username ].choice2.strip == "" or
-    voters_hash[ username ].choice3.strip == ""
+    voterObj.choice1.strip == "" or
+    voterObj.choice2.strip == "" or
+    voterObj.choice3.strip == ""
   return false if choice_not_made
   # go ahead and put the values in the database
-  voters_hash[ username ].voted = true
-  user_record[ :choice1 ] = voters_hash[ username ].choice1
-  user_record[ :choice2 ] = voters_hash[ username ].choice2
-  user_record[ :choice3 ] = voters_hash[ username ].choice3
+  voterObj.voted = true
+  user_record[ :choice1 ] = voterObj.choice1
+  user_record[ :choice2 ] = voterObj.choice2
+  user_record[ :choice3 ] = voterObj.choice3
   user_record.save
 end
 
 def makeWinnersHash( siteArray )
-  winnersHash = new Hash
+  winnersHash = Hash.new
   siteArray.each do |name|
     winnersHash[ name ] = 0 
   end
   ratersInDb = User.all( :role => "student" )
   ratersInDb.each do |rater|
     site1 = rater.choice1.strip
+    next if site1 == nil || site1 == ""
     site2 = rater.choice2.strip
     site3 = rater.choice3.strip
     site1oldScore = winnersHash[ site1 ]
@@ -104,12 +120,13 @@ def makeWinnersHash( siteArray )
 end
 
 def makeWinnersCsv( winnersHash, voteFilename )
-  f = File.new( voteFilename, "w+" )
+  f = File.new( $sitesDir + '/' + voteFilename, "w+" )
   winnersHash.each_key do |key|
-    f.write( "#{key}, #{winners[ key ]}\n" )
+    f.write( "#{key}, #{winnersHash[ key ]}\n" )
   end
   f.close
 end
 
-
-
+def getInsert( filename )
+"<a href=\"#{filename}\" >winners</a>"
+end

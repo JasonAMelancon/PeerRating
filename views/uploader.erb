@@ -3,12 +3,14 @@
         <title>File Upload</title>
     </head>
     <body>
-        <h1>Download CSV</h1>
-        <h2>Functionality Currently Unavailable</h2>
         <h1>Upload Zip</h1>
          <form action="/zipupload" method="POST" enctype="multipart/form-data">
             <input type="file" name="zip">
             <input type="submit" value="Upload File">
+        </form>
+        <h1>Download CSV</h1>
+        <form action="/csvdownload" method="POST">
+          <button type="submit">Rankings</button> <%= @insert %>
         </form>
     </body>
 </html>

@@ -2,18 +2,27 @@ require 'sinatra'
 require 'sinatra/reloader' if development? # gem install sinatra-contrib
 require 'slim'
 require './users'
-#require './tracking'
+require './tracking'
 require 'bcrypt'
 require 'zip'
 require 'csv'
 
+=begin
 configure do
-  enable :sessions
+  enable :sessions, :static
   set :username, 'tester'
+  set :public_folder, $sitesDir
   # created via BCrypt::Password.create('test') in the rubymine terminal
   #test is the password, and tester is the username
   set :password, BCrypt::Password.new("$2a$10$/E7Lh5R/o8JAuEGoD6kwZ.iEIuyjfTqiOXBDG0vti96GmPwtwngUK")
 end
+=end
+enable :sessions, :static
+set :username, 'tester'
+# set :public_folder, $sitesDir
+# created via BCrypt::Password.create('test') in the rubymine terminal
+#test is the password, and tester is the username
+set :password, BCrypt::Password.new("$2a$10$/E7Lh5R/o8JAuEGoD6kwZ.iEIuyjfTqiOXBDG0vti96GmPwtwngUK")
 
 get '/' do
   erb :homepage
@@ -26,18 +35,21 @@ end
 post '/login' do
   result = User.first(:username => params[:username], :password => params[:password])
   unless result == nil
-    result2 = User.first(:username => params[:username], :password => params[:password], :role => "student")
-    result3 = User.first(:username => params[:username], :password => params[:password], :role => "instructor/ta")
-    if result3 != nil
+    #puts "[user found...]"
+    #result2 = User.first(:username => params[:username], :password => params[:password], :role => "student")
+    #result3 = User.first(:username => params[:username], :password => params[:password], :role => "admin")
+    session[:username] = result.username.strip
+    if result.role.strip == "admin"
       session[:admin] = true
       redirect to('/admin')
-    elsif result2 != nil
-      session[:student] = true
+    elsif result.role.strip == "student"
+      session[:admin] = false
+      $voter = $voters[ result.username.strip ]
       redirect to('/vote')
     end
   end
   #User.create(username: "test", password: "test", role: "tester", choice1: "test1",  choice2: "test2",  choice3: "test3")
-  slim :login
+  erb :notallowed # username/password not found
 end
 
 get '/logout' do
@@ -55,7 +67,7 @@ end
 def extract_zip(file, destination)
   FileUtils.mkdir_p(destination)
 
-  Zip::File.open(file) do |zip_file|
+  Zip::ZipFile.open(file) do |zip_file|
     zip_file.each do |f|
       fpath = File.join(destination, f.name)
       zip_file.extract(f, fpath) unless File.exist?(fpath)
@@ -69,6 +81,12 @@ end
 #Load webpage with buttons for uploading .csv and .zip files
 get "/admin" do
   if session[:admin]
+    if $csvfilename    
+      @insert = getInsert($sitesDir + '/' + $csvfilename)
+      $csvfilename = nil
+    else
+      @insert = ""
+    end
     erb :uploader
   else
     redirect to('/notallowed')
@@ -89,10 +107,11 @@ post '/csvupload' do
     #User.create(username: "test", password: "test", role: "tester", choice1: "test1",  choice2: "test2",  choice3: "test3")
     File.open(nameoffile, "r") do |f|
       f.each_line do |line|
-        array = line.split(',')
+        array = line.chomp.split(',')
         User.create(username: array[0], password: array[1], role: array[2], choice1: "",  choice2: "",  choice3: "")
       end
     end
+    $voters = hashify_voters()
     redirect to('/success')
   end
   redirect to('/false')
@@ -104,6 +123,8 @@ post '/zipupload' do
     File.open(params['zip'][:filename], 'w') do |f|
       f.write(params['zip'][:tempfile].read)
     end
+    extract_zip(nameoffile, '.')
+    $sites = arrayify_sites()
     redirect to('/success')
   end
   redirect to('/false')
@@ -121,12 +142,17 @@ get "/vote" do
   if $voter.voted
     redirect to('/thanks')
   end
-  @site_url = @sites[ $voter.siteThis ]
-  @disable_picks = (not $voter.siteSeen.all?).to_s
-  @num_sites = $voters.numSites
+  @sites = $sites
+  # puts "$sites dir = #{$sitesDir}"
+  # puts "@sites = #{@sites}"
+  # puts "$voter = #{$voter}"
+  # puts "$voter.siteThis = #{$voter.siteThis}"
+  @site_url = $sitesDir + "/" + @sites[ $voter.siteThis ] + "/index.html"
+  @num_sites = $voter.numSites
   @siteNum = $voter.randomSiteIndex
   $voter.saw
-  erb :vote
+  @disable_picks = ( $voter.siteSeen.all? ) ? ( "" ) : ( "disabled" )
+  erb :vote, :layout => false
 end
 
 post "/prev" do
@@ -140,10 +166,10 @@ post "/next" do
 end
 
 post "/vote" do
-  $voter.choice1 = @sites[ $voter.randomSite[ params[:first] - 1 ]]
-  $voter.choice2 = @sites[ $voter.randomSite[ params[:second] - 1 ]]
-  $voter.choice3 = @sites[ $voter.randomSite[ params[:third] - 1 ]]
-  if vote( $voters, settings.username )
+  $voter.choice1 = $sites[ $voter.randomSite[ params[:first].to_i - 1 ]]
+  $voter.choice2 = $sites[ $voter.randomSite[ params[:second].to_i - 1 ]]
+  $voter.choice3 = $sites[ $voter.randomSite[ params[:third].to_i - 1 ]]
+  if vote( $voters, session[:username] )
     redirect to('/thanks')
   else
     puts "Error: voting not successful"
@@ -156,10 +182,21 @@ end
 
 #From the sinatra readme
 #Download csv of voter results
-get '/download' do 
-  winners = makeWinnersHash( @sites )
-  filename = 'voting_report.csv'
-  makeWinnersCsv( winners, filename )  
-  send_file filename
+post '/csvdownload' do 
+  winners = makeWinnersHash( $sites )
+  $csvfilename = 'voting_report.csv'
+  makeWinnersCsv( winners, $csvfilename )  
+  redirect to('/admin')
 end
+
+=begin
+get '*' do
+  #puts "params: #{params['splat']}"
+  filename = params['splat'][0] # + "index.html" 
+  #puts "filename: #{filename}"
+  if File.exist? filename
+    send_file filename
+  end
+end
+=end
 

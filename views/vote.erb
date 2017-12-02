@@ -1,1 +1,113 @@
-<p>Vote for your favorite web sites</p>
+<!doctype html>
+
+<html lang="en">
+<head>
+ 
+  <meta charset="utf-8">
+
+  <title>Rate the sites</title>
+  <meta name="description" content="Web Design course project: Pick your top three favorite sites.">
+  <meta name="author" content="Jason Melancon"> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Bootstrap support code -->
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.js"></script> 
+
+  <style>
+    form { display: inline;
+    }
+  </style>
+
+  <link rel="stylesheet" href="css/style.css">
+
+</head>
+    
+<body>
+
+<p>Voting on Site <%= @siteNum + 1 %>:</p>
+
+<form method="post" action="/prev">
+  <button id="prev" type="submit" formmethod="post" formaction="/prev">
+    <span class="glyphicon glyphicon-chevron-left"></span>
+    Prev
+  </button>
+</form>
+<form method="post" action="/next">
+	<button id="next" type="submit" formmethod="post" formaction="/next">
+	  Next
+	  <span class="glyphicon glyphicon-chevron-right"></span>
+	</button>
+</form>
+
+<form method="post" action="/vote">
+  <input id="vote" type="submit" value="VOTE" disabled>
+
+  <select id="first" name="first" <%= @disable_picks %>>
+    <option value="0" disabled selected>Choose your favorite...</option>
+    <% for i in 1..@num_sites %>
+    <option value="<%= i.to_s %>">Site <%= i.to_s %></option>
+    <% end %>
+  </select>
+  <select id="second" name="second" <%= @disable_picks %>>
+    <option value="0" disabled selected>Choose your second favorite...</option>
+    <% for i in 1..@num_sites %>
+    <option value="<%= i.to_s %>">Site <%= i.to_s %></option>
+    <% end %>
+  </select>
+  <select id="third" name="third" <%= @disable_picks %>>
+    <option value="0" disabled selected>Choose your third favorite...</option>
+    <% for i in 1..@num_sites %>
+    <option value="<%= i.to_s %>">Site <%= i.to_s %></option>
+    <% end %>
+  </select>
+</form>
+
+<iframe width="100%" height="100%" src=<%= @site_url %>></iframe> 
+
+  <script> 
+    siteFrame = document.getElementsByTagName("iframe")[0];
+    
+    prevButton = document.getElementById("prev");
+    prevButton.addEventListener( "click", prevHandler );
+    function prevHandler() 
+    { // handling in post event instead
+    } 
+
+    nextButton = document.getElementById("next");
+    nextButton.addEventListener( "click", nextHandler );
+    function nextHandler() 
+    { // handling in post event instead
+    } 
+
+    voteButton = document.getElementById("vote");
+    dropdown1 = document.getElementById("first");
+    dropdown2 = document.getElementById("second");
+    dropdown3 = document.getElementById("third");
+    dropdown1.addEventListener( "change", dropHandler );
+    dropdown2.addEventListener( "change", dropHandler );
+    dropdown3.addEventListener( "change", dropHandler );
+    
+    // Here is where we decide whether to enable the vote button:
+    // - All <select> dropdowns must have unique values
+    // - No <select> dropdown may have a value of 0
+    function dropHandler()
+    { pick1 = dropdown1.value;
+      pick2 = dropdown2.value;
+      pick3 = dropdown3.value;
+      dropsUnique = !(pick1 === pick2 || pick2 === pick3 || pick1 === pick3);
+      allPicked = !(pick1 == "0" || pick2 == "0" || pick3 == "0");
+
+      if (dropsUnique && allPicked)
+      { voteButton.disabled = false;
+      }
+      else
+      { voteButton.disabled = true;
+      }
+    }
+  </script>
+
+</body>
+</html>
