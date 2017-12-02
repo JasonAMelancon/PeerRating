@@ -10,7 +10,6 @@ require 'csv'
 configure do
   enable :sessions
   set :username, 'tester'
-  #pull in from the csv for passwords and user
   # created via BCrypt::Password.create('test') in the rubymine terminal
   #test is the password, and tester is the username
   set :password, BCrypt::Password.new("$2a$10$/E7Lh5R/o8JAuEGoD6kwZ.iEIuyjfTqiOXBDG0vti96GmPwtwngUK")
@@ -38,7 +37,7 @@ post '/login' do
     end
   end
   #User.create(username: "test", password: "test", role: "tester", choice1: "test1",  choice2: "test2",  choice3: "test3")
-  erb :login
+  slim :login
 end
 
 get '/logout' do
@@ -66,6 +65,7 @@ end
 
 #The following 23 lines of code are reappropriated from:
 #https://gist.github.com/runemadsen/3905593#file-form-erb-L10
+#as well as http://www.wooptoot.com/file-upload-with-sinatra
 #Load webpage with buttons for uploading .csv and .zip files
 get "/admin" do
   if session[:admin]
