@@ -38,7 +38,7 @@ post '/login' do
     end
   end
   #User.create(username: "test", password: "test", role: "tester", choice1: "test1",  choice2: "test2",  choice3: "test3")
-  slim :login
+  erb :login
 end
 
 get '/logout' do
